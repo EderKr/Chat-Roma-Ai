@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat IA</title>
+    
+</head>
+<body>
+    <input type="text"/>
+    <button onclick="enviar()">Enviar</button>
+    <ul></ul>
+</body>
+<script>
+        const skt = new WebSocket("wss://humble-bassoon-wwr7xg6r96vcg5w4-4000.app.github.dev/");
+
+     skt.addEventListener("message", async (event)=>{
+        message =  await event.data.text();
+        console.log("chegou a mensagem");
+        const ul = document.querySelector("ul");
+        ul.innerHTML += `<li>${message}</li>`
+     });
+
+     function enviar(){
+        let msg = document.querySelector("input").value
+        skt.send(msg);
+        msg = ""
+     }
+    </script>
+</html>
