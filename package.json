@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "start-wbs": "node ./wbs/chat-wbs.js",
-    "start-wao":"node ./wao/chat-wao.js"
+    "start-wio": "node ./wao/chat-wio.js"
   },
   "keywords": [],
   "author": "",
