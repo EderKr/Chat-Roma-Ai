@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "node.js": "^0.0.1-security",
+    "ws": "^8.18.0"
+  },
+  "name": "chat-roma-ai",
+  "version": "1.0.0",
+  "description": "[Link do Trello](https://trello.com/invite/b/6709a97bd3ab1f03e837770e/ATTI407bd96bfa791db66bec92d30cbbf981B2111D10/projeto-chat-ai)",
+  "main": "index.js",
+  "scripts": {
+    "start-wbs": "node ./wbs/chat-wbs.js",
+    "start-wio": "node ./wao/chat-wio.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
