@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "express": "^4.21.1",
     "node.js": "^0.0.1-security",
+    "socket.io": "^4.8.0",
     "ws": "^8.18.0"
   },
   "name": "chat-roma-ai",
@@ -9,7 +11,7 @@
   "main": "index.js",
   "scripts": {
     "start-wbs": "node ./wbs/chat-wbs.js",
-    "start-wio": "node ./wao/chat-wio.js"
+    "start-sktio": "node socketio.js"
   },
   "keywords": [],
   "author": "",

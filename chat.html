@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat SocketIO</title>
+</head>
+<body>
+    <input type="text">
+<button onclick="enviar()">Enviar</button>
+<ul></ul>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+
+<script>
+
+    const socket = io("https://humble-bassoon-wwr7xg6r96vcg5w4-3000.app.github.dev/")
+
+    socket.on("connect", ()=>{
+        console.log("conectado ao servidor")
+    })
+
+    socket.on("message", async (msg)=>{
+        console.log(msg)
+        const ul = document.querySelector("ul");
+        ul.innerHTML += `<li>${msg}</li>`
+    })
+
+    function enviar(){
+        let msg = document.querySelector("input")
+        socket.emit("message", msg.value)
+        msg.value = ""
+    }
+
+</script>
+</body>
+</html>
