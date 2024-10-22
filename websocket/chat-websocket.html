@@ -20,16 +20,24 @@
         );
 
         skt.addEventListener("message", async (event) => {
-            message = await event.data.text();
+            const message = await event.data.text();
             const ul = document.querySelector("ul");
             ul.innerHTML += `<li>${message}</li>`;
         });
 
         function enviar() {
-            let msg = document.querySelector("input");
-            skt.send(msg.value);
-            msg.value = ""
+            const msg = document.querySelector("#message");
+            if (msg.value.trim() !== "") {
+                skt.send(msg.value);
+                msg.value = "";
+            }
         }
+
+        document.querySelector("#message").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                enviar();
+            }
+        });
     </script>
 </body>
 </html>
