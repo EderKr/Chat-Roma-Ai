@@ -12,23 +12,26 @@
     <div id="chat"></div>
     <input type="text" id="message" placeholder="Digite sua mensagem" autofocus>
     <button onclick="enviar()">Enviar</button>
-    <ul></ul>
+    <ul id="chat-messages"></ul>
 
     <script>
         const skt = new WebSocket(
             "wss://14527c80-69ef-44b6-8e4d-b1c9b172f100-00-1a3hj4c6tsle2.worf.replit.dev/",
         );
 
+        const username = localStorage.getItem('username') || 'Usuário';
+
         skt.addEventListener("message", async (event) => {
             const message = await event.data.text();
-            const ul = document.querySelector("ul");
-            ul.innerHTML += `<li>${message}</li>`;
+            displayMessage(message);
         });
 
         function enviar() {
             const msg = document.querySelector("#message");
             if (msg.value.trim() !== "") {
-                skt.send(msg.value);
+                const fullMessage = `${username}: ${msg.value}`;
+                skt.send(fullMessage);
+                displayMessage(fullMessage);
                 msg.value = "";
             }
         }
@@ -38,6 +41,13 @@
                 enviar();
             }
         });
+
+        function displayMessage(message) {
+            const ul = document.querySelector("#chat-messages");
+            const li = document.createElement("li");
+            li.textContent = message;
+            ul.appendChild(li);
+        }
     </script>
 </body>
 </html>
