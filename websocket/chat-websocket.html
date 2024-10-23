@@ -9,45 +9,75 @@
 </head>
 <body>
     <h1>WebSocket Chat</h1>
-    <div id="chat"></div>
-    <input type="text" id="message" placeholder="Digite sua mensagem" autofocus>
-    <button onclick="enviar()">Enviar</button>
-    <ul id="chat-messages"></ul>
+    
+    <div id="chat" aria-live="polite">
+        <ul id="chat-messages"></ul> <!-- Lista de mensagens -->
+    </div>
+
+    <div id="message-container">
+        <input type="text" id="message" placeholder="Digite sua mensagem" autofocus aria-label="Digite sua mensagem">
+        <button onclick="enviar()">Enviar</button>
+    </div>
 
     <script>
-        const skt = new WebSocket(
-            "wss://14527c80-69ef-44b6-8e4d-b1c9b172f100-00-1a3hj4c6tsle2.worf.replit.dev/",
-        );
-
+        const skt = new WebSocket("wss://14527c80-69ef-44b6-8e4d-b1c9b172f100-00-1a3hj4c6tsle2.worf.replit.dev/");
         const username = localStorage.getItem('username') || 'Usuário';
 
-        skt.addEventListener("message", async (event) => {
-            const message = await event.data.text();
-            displayMessage(message);
-        });
+        // Função para configurar a conexão WebSocket
+        function setupWebSocket() {
+            skt.addEventListener("open", () => {
+                console.log("Conexão WebSocket estabelecida");
+            });
 
+            skt.addEventListener("message", (event) => {
+                const message = event.data;
+                displayMessage(message, false); // false indica que é uma mensagem recebida
+            });
+
+            skt.addEventListener("error", (error) => {
+                console.error("Erro no WebSocket:", error);
+                alert("Erro ao conectar ao chat. Tente novamente mais tarde.");
+            });
+
+            skt.addEventListener("close", () => {
+                console.log("Conexão WebSocket fechada");
+            });
+        }
+
+        // Função para enviar uma mensagem
         function enviar() {
             const msg = document.querySelector("#message");
-            if (msg.value.trim() !== "") {
-                const fullMessage = `${username}: ${msg.value}`;
+            const messageText = msg.value.trim();
+            if (messageText) {
+                const fullMessage = `${username}: ${messageText}`;
                 skt.send(fullMessage);
-                displayMessage(fullMessage);
+                displayMessage(fullMessage, true); // true indica que é uma mensagem enviada
                 msg.value = "";
             }
         }
 
+        // Permitir o envio da mensagem ao pressionar "Enter"
         document.querySelector("#message").addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 enviar();
             }
         });
 
-        function displayMessage(message) {
+        // Função para exibir a mensagem na interface do chat
+        function displayMessage(message, isSent = false) {
             const ul = document.querySelector("#chat-messages");
             const li = document.createElement("li");
+
+            li.classList.add(isSent ? 'sent' : 'received');
             li.textContent = message;
             ul.appendChild(li);
+
+            // Rolagem automática para a última mensagem
+            ul.scrollTop = ul.scrollHeight;
         }
+
+        // Inicializa a configuração do WebSocket
+        setupWebSocket();
     </script>
 </body>
 </html>
