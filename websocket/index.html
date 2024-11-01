@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat com WebSocket e OpenAI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Chat com Geração de Imagens</h1>
+    <div id="chat">
+        <ul id="chat-messages"></ul>
+    </div>
+    <div id="message-container">
+        <input id="messageInput" type="text" placeholder="Digite uma mensagem ou /image para gerar uma imagem..." />
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Função para exibir mensagens no chat
+        function displayMessage(message, messageType) {
+            const chatMessages = document.getElementById('chat-messages');
+            const msgElement = document.createElement('li');
+            msgElement.innerHTML = message;
+            msgElement.classList.add(messageType); // Define como 'sent' ou 'received'
+            chatMessages.appendChild(msgElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática
+        }
+
+        // Função para enviar a mensagem ao servidor
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            if (message) {
+                displayMessage(message, 'sent'); // Exibe como mensagem enviada
+                socket.emit('chatMessage', message); // Envia ao servidor
+                messageInput.value = ''; // Limpa o campo de entrada
+            }
+        }
+
+        // Adiciona um listener para a tecla Enter
+        document.getElementById('messageInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Evita a nova linha
+                sendMessage(); // Chama a função de enviar mensagem
+            }
+        });
+
+        // Receber mensagens do servidor e exibir
+        socket.on('chatMessage', (msg) => {
+            displayMessage(msg, 'received');
+        });
+
+        // Receber URLs de imagens do servidor e exibir
+        socket.on('imageResponse', (urlOrMessage) => {
+            if (urlOrMessage.startsWith('http')) {
+                displayMessage('<img src="' + urlOrMessage + '" alt="Imagem gerada" />', 'received');
+            } else {
+                displayMessage(urlOrMessage, 'received'); // Mensagem de erro, por exemplo
+            }
+        });
+    </script>
+</body>
+</html>
