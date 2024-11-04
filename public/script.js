@@ -1,6 +1,3 @@
-// Conectando ao servidor com Socket.IO
-const socket = io();
-
 // Mapeamento de comandos para arquivos de áudio
 const audioMap = {
     "/image gato": "audios/Gato.m4a",
@@ -24,26 +21,12 @@ function playAudio(command) {
     }
 }
 
-// Função para tocar um áudio silencioso para desbloquear a reprodução de áudio
-function enableAudioPlayback() {
-    const silentAudio = new Audio("audios/silent.m4a"); // Áudio curto e silencioso
-    silentAudio.play().catch(() => {
-        console.log("Primeira interação registrada para permitir reprodução de áudio.");
-    });
-}
-
-// Adiciona o listener para a primeira interação do usuário
-document.body.addEventListener('click', enableAudioPlayback, { once: true });
-
 // Função para exibir mensagens no chat
 function displayMessage(message, messageType) {
     const chatMessages = document.getElementById('chat-messages');
     const msgElement = document.createElement('li');
     msgElement.innerHTML = message;
-    msgElement.classList.add('msgDiv'); // Define como 'sent' ou 'received'
-    const msgElementDiv = document.createElement('div');
-    msgElementDiv.classList.add('msgDiv')
-    msgElementDiv.appendChild = msgElement
+    msgElement.classList.add(messageType); // Define como 'sent' ou 'received'
     chatMessages.appendChild(msgElement);
     chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática
 }
@@ -72,14 +55,15 @@ socket.on('chatMessage', (msg) => {
     displayMessage(msg, 'received');
 });
 
-// Receber URLs de imagens do servidor e exibir
-socket.on('imageResponse', (urlOrMessage) => {
-    if (urlOrMessage.startsWith('http')) {
-        displayMessage('<img src="' + urlOrMessage + '" alt="Imagem gerada" />', 'received');
+// Receber a URL da imagem e o comando do servidor
+socket.on('imageResponse', (data) => {
+    if (data.imageUrl) {
+        // Exibe a imagem gerada
+        displayMessage('<img src="' + data.imageUrl + '" alt="Imagem gerada" />', 'received');
     } else {
-        displayMessage(urlOrMessage, 'received'); // Mensagem de erro, por exemplo
+        displayMessage(data.message, 'received'); // Exibe mensagem de erro
     }
 
     // Verifica o comando e toca o áudio correspondente
-    playAudio(urlOrMessage);
+    playAudio(data.command); // Passa o comando para a função playAudio
 });
