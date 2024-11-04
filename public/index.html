@@ -20,6 +20,29 @@
     <script>
         const socket = io();
 
+        // Mapeamento de comandos para arquivos de áudio
+        const audioMap = {
+            "/image gato": "audios/Gato.m4a",
+            "/image cachorro": "audios/Cachorro.m4a",
+            "/image raposa": "audios/Raposa.m4a",
+            "/image urso": "audios/Urso.m4a",
+            "/image grito": "audios/Wilhelm Scream.m4a",
+            "/image cano de metal": "audios/Metal Pipe.m4a",
+            "/image sonic": "audios/Sonic Jumping.m4a",
+            "/image cabra gritando": "audios/Goat Scream.m4a"
+        };
+
+        // Função para tocar o áudio específico com base no comando
+        function playAudio(command) {
+            const audioFile = audioMap[command];
+            if (audioFile) {
+                const audio = new Audio(audioFile);
+                audio.play().catch((error) => {
+                    console.error("Erro ao reproduzir o áudio:", error);
+                });
+            }
+        }
+
         // Função para exibir mensagens no chat
         function displayMessage(message, messageType) {
             const chatMessages = document.getElementById('chat-messages');
@@ -54,13 +77,17 @@
             displayMessage(msg, 'received');
         });
 
-        // Receber URLs de imagens do servidor e exibir
-        socket.on('imageResponse', (urlOrMessage) => {
-            if (urlOrMessage.startsWith('http')) {
-                displayMessage('<img src="' + urlOrMessage + '" alt="Imagem gerada" />', 'received');
+        // Receber a URL da imagem e o comando do servidor
+        socket.on('imageResponse', (data) => {
+            if (data.imageUrl) {
+                // Exibe a imagem gerada
+                displayMessage('<img src="' + data.imageUrl + '" alt="Imagem gerada" />', 'received');
             } else {
-                displayMessage(urlOrMessage, 'received'); // Mensagem de erro, por exemplo
+                displayMessage(data.message, 'received'); // Exibe mensagem de erro
             }
+
+            // Verifica o comando e toca o áudio correspondente
+            playAudio(data.command); // Passa o comando para a função playAudio
         });
     </script>
 </body>
