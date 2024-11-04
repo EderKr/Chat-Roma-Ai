@@ -1,77 +1,54 @@
+// server.js
 require('dotenv').config();
 const express = require('express');
 const { Server } = require('socket.io');
 const http = require('http');
 const axios = require('axios');
-const winston = require('winston');
-const NodeCache = require('node-cache');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const PORT = process.env.PORT || 3000;
-const cache = new NodeCache({ stdTTL: 300 }); // Cache com TTL de 5 minutos
+const PORT = 3000;
 
-// Configuração de logger
-const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.printf(({ timestamp, level, message }) => {
-            return `${timestamp} [${level.toUpperCase()}]: ${message}`;
-        })
-    ),
-    transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({ filename: 'server.log' })
-    ]
-});
-
+// Configuração da rota para servir arquivos estáticos (front-end)
 app.use(express.static('public'));
 
+// Evento de conexão WebSocket
 io.on('connection', (socket) => {
-    logger.info(`Usuário conectado: ${socket.id}`);
+    console.log('Usuário conectado:', socket.id);
 
+    // Ouve mensagem de chat
     socket.on('chatMessage', async (msg) => {
         if (msg.startsWith('/image')) {
-            const prompt = sanitizeInput(msg.replace('/image', '').trim());
+            // Extrai o prompt do comando
+            const prompt = msg.replace('/image', '').trim();
             if (prompt) {
-                const cachedImage = cache.get(prompt);
-                if (cachedImage) {
-                    socket.emit('imageResponse', cachedImage);
-                    logger.info(`Imagem servida do cache para o prompt: ${prompt}`);
-                    return;
-                }
-
                 try {
                     const imageUrl = await generateImage(prompt);
-                    cache.set(prompt, imageUrl);
-                    socket.emit('imageResponse', imageUrl);
+                    // Envia tanto a URL da imagem quanto o comando de volta
+                    socket.emit('imageResponse', { imageUrl, command: msg });
                 } catch (error) {
-                    logger.error(`Erro ao gerar imagem: ${error.message}`);
-                    socket.emit('errorResponse', 'Desculpe, ocorreu um problema ao gerar a imagem.');
+                    console.error("Erro ao gerar imagem:", error.message);
+                    socket.emit('imageResponse', { message: "Erro ao gerar a imagem." });
                 }
             } else {
-                socket.emit('errorResponse', 'O prompt para gerar imagem está vazio ou é inválido.');
+                socket.emit('imageResponse', { message: "Por favor, forneça um prompt após /image." });
             }
         } else {
-            socket.emit('chatResponse', `Mensagem recebida: ${msg}`);
+            // Mensagem padrão de chat
+            io.emit('chatMessage', msg);
         }
     });
 
     socket.on('disconnect', () => {
-        logger.info(`Usuário desconectado: ${socket.id}`);
+        console.log('Usuário desconectado:', socket.id);
     });
 });
 
-function sanitizeInput(input) {
-    return input.replace(/[^a-zA-Z0-9 à-ü]/g, ''); // Remove caracteres especiais perigosos
-}
-
+// Função para chamar a API da OpenAI e gerar a imagem
 async function generateImage(prompt) {
     if (!process.env.OPENAI_API_KEY) {
-        logger.error('Chave de API da OpenAI não encontrada.');
-        throw new Error('Chave de API não configurada.');
+        throw new Error("Chave de API da OpenAI não encontrada.");
     }
 
     try {
@@ -80,7 +57,7 @@ async function generateImage(prompt) {
             {
                 prompt: prompt,
                 n: 1,
-                size: '256x256'
+                size: "256x256",
             },
             {
                 headers: {
@@ -89,13 +66,14 @@ async function generateImage(prompt) {
                 }
             }
         );
-        return response.data.data[0].url;
+        return response.data.data[0].url; // Retorna a URL da imagem gerada
     } catch (error) {
-        logger.error(`Erro ao chamar API externa: ${error.response ? error.response.data : error.message}`);
-        throw new Error('Falha ao gerar imagem. Verifique o prompt e tente novamente.');
+        console.error("Erro ao gerar imagem:", error.response ? error.response.data : error.message);
+        throw new Error("Falha ao gerar imagem. Verifique o prompt e tente novamente.");
     }
 }
 
+// Inicia o servidor
 server.listen(PORT, () => {
-    logger.info(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
