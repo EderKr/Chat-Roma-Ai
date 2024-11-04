@@ -1,20 +1,20 @@
 {
-  "name": "projectws",
+  "name": "openai-image-chat",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start-wbs": "node ./websocket/chat-websocket.js",
-    "start-socketio": "node socketio.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
-    "@types/node": "^18.0.6",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "socket.io": "^4.8.0",
-    "socketio": "^1.0.0",
-    "ws": "^8.18.0"
-  },
-  "description": ""
+    "node-cache": "^5.1.2",
+    "socket.io": "^4.8.1",
+    "winston": "^3.16.0"
+  }
 }
