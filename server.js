@@ -80,7 +80,7 @@ async function generateImage(prompt) {
             {
                 prompt: prompt,
                 n: 1,
-                size: '1024x1024'
+                size: '300x300'
             },
             {
                 headers: {
