@@ -3,14 +3,14 @@ const socket = io();
 
 // Mapeamento de comandos para arquivos de áudio
 const audioMap = {
-    "/image gato": "audios/gato.m4a",
-    "/image cachorro": "audios/cachorro.m4a",
-    "/image raposa": "audios/raposa.m4a",
-    "/image urso": "audios/urso.m4a",
-    "/image grito": "audios/grito.m4a",
-    "/image cano de metal": "audios/cano.m4a",
-    "/image sonic": "audios/sonic.m4a",
-    "/image cabra gritando": "audios/cabra.m4a"
+    "/image gato": "audios/Gato.m4a",
+    "/image cachorro": "audios/Cachorro.m4a",
+    "/image raposa": "audios/Raposa.m4a",
+    "/image urso": "audios/Urso.m4a",
+    "/image grito": "audios/Wilhelm Scream.m4a",
+    "/image cano de metal": "audios/Metal Pipe.m4a",
+    "/image sonic": "audios/Sonic Jumping.m4a",
+    "/image cabra gritando": "audios/Goat Scream.m4a"
 };
 
 // Função para tocar o áudio específico com base no comando
