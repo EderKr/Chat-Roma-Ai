@@ -24,7 +24,7 @@ h1 {
 
 #chat {
     width: 100%;
-    max-width: 500px;  /* Reduz a largura máxima do chat */
+    max-width: 600px;  /* Reduz a largura máxima do chat */
     height: 350px;  /* Ajusta a altura do chat */
     background-color: #ffffff;
     border: 1px solid #ccc;
