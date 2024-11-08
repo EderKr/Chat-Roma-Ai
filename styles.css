@@ -6,74 +6,86 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background: linear-gradient(to bottom, #192428, #121a1e);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    padding: 0 10px;
 }
 
 .login-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    background-color: #2d383c;
+    padding: 30px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     text-align: center;
 }
 
 h2 {
-    margin-bottom: 20px;
+    color: #fff;
     font-size: 24px;
-    color: #333;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 20px;
 }
 
 label {
+    color: #fff;
+    font-size: 16px;
     margin-bottom: 8px;
-    font-size: 14px;
-    color: #555;
+    display: block;
+    text-align: left;
 }
 
 input[type="text"] {
-    padding: 10px;
+    width: 100%;
+    padding: 12px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
-    width: 100%;
+    background-color: #414c50;
+    color: #fff;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #39ace7;
+    outline: none;
 }
 
 button {
-    padding: 10px;
-    background-color: #4CAF50;
+    padding: 12px 20px;
+    background-color: #39ace7;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #0784b5;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(57, 172, 231, 0.5);
 }
 
 @media (max-width: 600px) {
     .login-container {
         width: 90%;
-        padding: 15px;
+        padding: 20px;
     }
 
     h2 {
         font-size: 20px;
     }
 
-    input[type="text"],
-    button {
-        font-size: 14px;
-    }
+    input[type="text"], button {
+        font-size: 14px;
+    }
 }
