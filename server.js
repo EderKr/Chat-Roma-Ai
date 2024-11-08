@@ -1,31 +1,32 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const { Server } = require('socket.io');
 const http = require('http');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 const PORT = 3000;
 
-// Configuração da rota para servir arquivos estáticos (front-end)
-app.use(express.static('public'));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
 
-// Evento de conexão WebSocket
+app.use(express.static(path.join(__dirname)));
+
+app.use(express.static(path.join(__dirname, 'public'))); 
+
 io.on('connection', (socket) => {
     console.log('Usuário conectado:', socket.id);
 
-    // Ouve mensagem de chat
     socket.on('chatMessage', async (msg) => {
         if (msg.startsWith('/image')) {
-            // Extrai o prompt do comando
             const prompt = msg.replace('/image', '').trim();
             if (prompt) {
                 try {
                     const imageUrl = await generateImage(prompt);
-                    // Envia tanto a URL da imagem quanto o comando de volta
                     socket.emit('imageResponse', { imageUrl, command: msg });
                 } catch (error) {
                     console.error("Erro ao gerar imagem:", error.message);
@@ -73,7 +74,6 @@ async function generateImage(prompt) {
     }
 }
 
-// Inicia o servidor
 server.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
