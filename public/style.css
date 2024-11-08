@@ -6,17 +6,17 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background: linear-gradient(to bottom, #192428, #121a1e);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    padding: 0 10px;  /* Adiciona um pouco de espaço nas laterais */
+    padding: 0 10px;
 }
 
 h1 {
-    color: #333;
+    color: #fff;
     margin-bottom: 20px;
     font-size: 28px;
     text-align: center;
@@ -24,9 +24,13 @@ h1 {
 
 #chat {
     width: 100%;
-    max-width: 600px;  /* Reduz a largura máxima do chat */
-    height: 350px;  /* Ajusta a altura do chat */
-    background-color: #ffffff;
+    max-width: 600px;
+    height: 350px;
+    background: linear-gradient(45deg, #4f5b63 25%, transparent 25%),
+                linear-gradient(-45deg, #4f5b63 25%, transparent 25%);
+    background-color: #2d383c;
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 10px;
@@ -36,6 +40,23 @@ h1 {
     justify-content: flex-start;
 }
 
+#chat::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chat::-webkit-scrollbar-track {
+    background-color: #1e2728;
+}
+
+#chat::-webkit-scrollbar-thumb {
+    background-color: #414c50;
+    border-radius: 10px;
+}
+
+#chat::-webkit-scrollbar-thumb:hover {
+    background-color: #0784b5;
+}
+
 #chat-messages {
     list-style: none;
     padding: 0;
@@ -43,39 +64,49 @@ h1 {
     overflow-y: auto;
     flex-grow: 1;
     display: flex;
-    flex-direction: column;  /* Organiza as mensagens de forma vertical */
-    gap: 10px;  /* Espaçamento entre as mensagens */
+    flex-direction: column;
+    gap: 10px;
+}
+
+.username {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #fff;
+    font-size: 14px;
+    text-align: left;
 }
 
 #chat-messages li {
-    padding: 8px;  /* Reduz o padding interno */
+    padding: 8px;
     background-color: #e0e0e0;
     margin-bottom: 10px;
     border-radius: 8px;
-    word-wrap: break-word;  /* Limita a largura das mensagens */
-    max-width: 80%;  /* Limita a largura das mensagens */
+    word-wrap: break-word;
+    max-width: 80%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Estilo para as mensagens enviadas */
 #chat-messages .sent {
-    background-color: #d1f5d3;
+    background-color: #0784b5;
+    color: white;
     align-self: flex-start;
     text-align: left;
 }
 
-/* Estilo para as mensagens recebidas */
 #chat-messages .received {
-    background-color: #f1f0f0;
+    background-color: #414c50;
+    color: white;
     align-self: flex-end;
     text-align: left;
 }
 
-/* Estilo para imagens recebidas no chat */
 #chat-messages img {
     max-width: 100%;
     max-height: 300px;
     border-radius: 8px;
-    margin-top: 10px; 
+    margin-top: 10px;
 }
 
 input[type="text"] {
@@ -87,39 +118,41 @@ input[type="text"] {
     border-radius: 8px;
     font-size: 16px;
     flex-shrink: 0;
-    transition: border-color 0.3s;  /* Suaviza a transição de foco */
+    background-color: #2d383c;
+    color: #fff;
+    transition: border-color 0.3s;
 }
 
 input[type="text"]:focus {
-    border-color: #4CAF50;  /* Cor de foco para o campo de entrada */
-    outline: none;  /* Remove o contorno padrão */
+    border-color: #39ace7;
+    outline: none;
 }
 
 input[type="text"]::placeholder {
-    color: #888;  /* Cor do texto do placeholder */
-    opacity: 1;  /* Garante que o placeholder é opaco */
+    color: #888;
+    opacity: 1;
 }
 
 button {
     padding: 10px 20px;
     margin-top: 10px;
-    background-color: #4CAF50;
+    background-color: #39ace7;
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background-color 0.3s;  /* Suaviza a transição de fundo */
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #0784b5;
 }
 
 button:focus {
-    outline: none;  /* Remove o contorno padrão */
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5);  /* Destaque em foco */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(57, 172, 231, 0.5);
 }
 
 #message-container {
@@ -131,14 +164,14 @@ button:focus {
 
 @media (max-width: 600px) {
     #chat {
-        height: 300px;  /* Ajusta a altura do chat em dispositivos pequenos */
+        height: 300px;
     }
 
     input[type="text"] {
-        font-size: 14px;  /* Reduz o tamanho da fonte em dispositivos pequenos */
+        font-size: 14px;
     }
 
     button {
-        font-size: 14px;  /* Reduz o tamanho da fonte do botão em dispositivos pequenos */
+        font-size: 14px;
     }
 }
