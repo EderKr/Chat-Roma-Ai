@@ -1,23 +1,15 @@
-// Mapeamento de comandos para arquivos de áudio
-const audioMap = {
-    "/image gato": "audios/Gato.m4a",
-    "/image cachorro": "audios/Cachorro.m4a",
-    "/image raposa": "audios/Raposa.m4a",
-    "/image urso": "audios/Urso.m4a",
-    "/image grito": "audios/Wilhelm Scream.m4a",
-    "/image cano de metal": "audios/Metal Pipe.m4a",
-    "/image sonic": "audios/Sonic Jumping.m4a",
-    "/image cabra gritando": "audios/Goat Scream.m4a"
-};
-
 // Função para tocar o áudio específico com base no comando
 function playAudio(command) {
     const audioFile = audioMap[command];
     if (audioFile) {
         const audio = new Audio(audioFile);
-        audio.play().catch((error) => {
-            console.error("Erro ao reproduzir o áudio:", error);
+        audio.play().then(() => {
+            console.log(`Reproduzindo o áudio para o comando: ${command}`);
+        }).catch((error) => {
+            console.error(`Erro ao reproduzir o áudio para o comando: ${command}`, error);
         });
+    } else {
+        console.warn(`Nenhum áudio mapeado para o comando: ${command}`);
     }
 }
 
@@ -35,7 +27,54 @@ function displayMessage(message, messageType) {
 function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
-    if (message) {
+
+    if (message.startsWith("/text ")) {
+        // Remove o comando /text e envia o conteúdo à API da OpenAI
+        const userMessage = message.replace("/text ", "");
+        fetch('/openai/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userMessage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                displayMessage(data.response, 'received');
+            } else {
+                displayMessage("Erro na resposta da API.", 'received');
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao se comunicar com a API OpenAI:", error);
+            displayMessage("Erro ao se comunicar com a API.", 'received');
+        });
+    } else if (message.startsWith("/image") || message === "/cat" || message === "/dog" || message === "/fox" || message.startsWith("/gif")) {
+        // Toca o áudio e busca a imagem para os comandos /image, /cat, /dog, /fox e /gif
+        playAudio(message);
+
+        let url = '';
+        if (message.startsWith("/gif")) {
+            url = `/api/gif${message.replace("/gif", "").trim() ? "?query=" + message.replace("/gif", "").trim() : ''}`;
+        } else {
+            url = `/api${message === '/cat' ? '/cat' : message === '/dog' ? '/dog' : '/fox'}`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    displayMessage(`<img src="${data.url}" alt="Imagem" class="${message.slice(1)}-image">`, 'received');
+                } else {
+                    displayMessage("Erro ao buscar a imagem.", 'received');
+                }
+            })
+            .catch(error => {
+                console.error(`Erro ao buscar a imagem:`, error);
+                displayMessage("Erro ao buscar a imagem.", 'received');
+            });
+    } else if (message) {
         displayMessage(message, 'sent'); // Exibe como mensagem enviada
         socket.emit('chatMessage', message); // Envia ao servidor
         messageInput.value = ''; // Limpa o campo de entrada
@@ -58,12 +97,8 @@ socket.on('chatMessage', (msg) => {
 // Receber a URL da imagem e o comando do servidor
 socket.on('imageResponse', (data) => {
     if (data.imageUrl) {
-        // Exibe a imagem gerada
-        displayMessage('<img src="' + data.imageUrl + '" alt="Imagem gerada" />', 'received');
-    } else {
-        displayMessage(data.message, 'received'); // Exibe mensagem de erro
+        displayMessage(`<img src="${data.imageUrl}" alt="Imagem gerada" class="generated-image">`, 'received');
+    } else if (data.message) {
+        displayMessage(data.message, 'received');
     }
-
-    // Verifica o comando e toca o áudio correspondente
-    playAudio(data.command); // Passa o comando para a função playAudio
 });
