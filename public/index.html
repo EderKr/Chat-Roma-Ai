@@ -20,8 +20,10 @@
     <script>
         const socket = io();
 
+        // Pega o nome do usuário armazenado no localStorage
         const username = localStorage.getItem('username') || 'Usuário';
 
+        // Mapeamento de comandos para arquivos de áudio
         const audioMap = {
             "/image gato": "audios/Gato.m4a",
             "/image cachorro": "audios/Cachorro.m4a",
@@ -30,9 +32,13 @@
             "/image grito": "audios/Wilhelm Scream.m4a",
             "/image cano de metal": "audios/Metal Pipe.m4a",
             "/image sonic": "audios/Sonic Jumping.m4a",
-            "/image cabra gritando": "audios/Goat Scream.m4a"
+            "/image cabra gritando": "audios/Goat Scream.m4a",
+            "/cat": "audios/Gato.m4a",
+            "/dog": "audios/Cachorro.m4a",
+            "/fox": "audios/Raposa.m4a",
         };
 
+        // Função para tocar o áudio específico com base no comando
         function playAudio(command) {
             const audioFile = audioMap[command];
             if (audioFile) {
@@ -43,51 +49,59 @@
             }
         }
 
+        // Função para exibir mensagens no chat
         function displayMessage(sender, message, messageType) {
             const chatMessages = document.getElementById('chat-messages');
             const msgElement = document.createElement('li');
 
+            // Cria um elemento para o nome do usuário, sem o ":" após o nome
             const usernameElement = document.createElement('span');
             usernameElement.classList.add('username');
-            usernameElement.textContent = sender;
+            usernameElement.textContent = sender;  // Nome do usuário sem ":"
             msgElement.appendChild(usernameElement);
 
+            // Exibe a mensagem abaixo do nome do usuário
             msgElement.innerHTML += `<p>${message}</p>`;
-            msgElement.classList.add(messageType);
+            msgElement.classList.add(messageType); // Define como 'sent' ou 'received'
             chatMessages.appendChild(msgElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática
         }
 
-
+        // Função para enviar a mensagem ao servidor
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
             if (message) {
-                displayMessage(username, message, 'sent');
-                socket.emit('chatMessage', message); 
-                messageInput.value = '';
+                displayMessage(username, message, 'sent'); // Exibe como mensagem enviada com o nome do usuário
+                socket.emit('chatMessage', message); // Envia ao servidor
+                messageInput.value = ''; // Limpa o campo de entrada
             }
         }
 
+        // Adiciona um listener para a tecla Enter
         document.getElementById('messageInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
-                event.preventDefault();
-                sendMessage();
+                event.preventDefault(); // Evita a nova linha
+                sendMessage(); // Chama a função de enviar mensagem
             }
         });
 
+        // Receber mensagens do servidor e exibir
         socket.on('chatMessage', (msg) => {
-            displayMessage("Bot", msg, 'received');
+            displayMessage("Bot", msg, 'received'); // Nome do bot é definido como 'Bot'
         });
 
+        // Receber a URL da imagem e o comando do servidor
         socket.on('imageResponse', (data) => {
             if (data.imageUrl) {
+                // Exibe a imagem gerada
                 displayMessage("Bot", `<img src="${data.imageUrl}" alt="Imagem gerada" />`, 'received');
             } else {
-                displayMessage("Bot", data.message, 'received');
+                displayMessage("Bot", data.message, 'received'); // Exibe mensagem de erro
             }
 
-            playAudio(data.command);
+            // Verifica o comando e toca o áudio correspondente
+            playAudio(data.command); // Passa o comando para a função playAudio
         });
     </script>
 </body>
