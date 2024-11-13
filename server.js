@@ -90,6 +90,18 @@ io.on('connection', (socket) => {
             }
         } else if (msg.startsWith('/audio')) {
             socket.emit('chatMessage', 'Gerando áudio...');
+        } else if (msg.startsWith('/help')) {
+            // Responde com a lista de comandos
+            const helpMessage = 
+            "- /image [descrição]: Gera uma imagem com o prompt fornecido.<br>" +
+            "- /text [pergunta]: Recebe uma resposta gerada pela OpenAI.<br>" +
+            "- /gif [termo]: Busca um GIF com o termo fornecido.<br>" +
+            "- /cat: Envia uma imagem de um gato.<br>" +
+            "- /dog: Envia uma imagem de um cachorro.<br>" +
+            "- /fox: Envia uma imagem de uma raposa.<br>" +
+            "- /audio: Gera áudio baseado na entrada fornecida.<br>" +
+            "- /help: Exibe essa lista de comandos.";
+            socket.emit('chatMessage', helpMessage);
         } else {
             io.emit('chatMessage', msg);
         }
