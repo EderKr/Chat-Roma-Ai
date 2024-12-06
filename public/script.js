@@ -29,6 +29,12 @@ function displayMessage(sender, message, messageType) {
     msgElement.classList.add(messageType); // Define como 'sent' ou 'received'
     chatMessages.appendChild(msgElement);
     chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática
+
+    // Toca o áudio se a mensagem for "Reproduzindo áudio"
+    if (sender === 'Bot' && message === 'Reproduzindo áudio') {
+        const lastCommand = chatMessages.lastElementChild.previousElementSibling.querySelector('p').textContent;
+        playAudio(lastCommand);
+    }
 }
 
 // Função para enviar a mensagem ao servidor
@@ -85,6 +91,8 @@ function sendMessage() {
                 console.error(`Erro ao buscar a imagem:`, error);
                 displayMessage('Bot', "Erro ao buscar a imagem.", 'received');
             });
+    } else if (message.startsWith("/audio")) {
+        playAudio(message);
     }
 }
 
@@ -108,4 +116,9 @@ socket.on('imageResponse', (data) => {
     } else if (data.message) {
         displayMessage('Bot', data.message, 'received');
     }
+});
+
+// Receber o comando de áudio do servidor
+socket.on('audioResponse', (data) => {
+    playAudio(data.command);
 });
