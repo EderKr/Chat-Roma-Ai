@@ -93,7 +93,13 @@ io.on('connection', (socket) => {
                 io.emit('chatMessage', { username: 'Bot', message: 'Erro ao obter a imagem da raposa.' });
             }
         } else if (message.startsWith('/audio')) {
-            io.emit('chatMessage', { username: 'Bot', message: 'Gerando áudio...' });
+            const audioCommand = message.replace('/audio', '').trim();
+            if (audioCommand) {
+                io.emit('chatMessage', { username: 'Bot', message: 'Reproduzindo áudio' });
+                io.emit('audioResponse', { command: `/audio ${audioCommand}` });
+            } else {
+                io.emit('chatMessage', { username: 'Bot', message: 'Por favor, forneça um comando de áudio após /audio.' });
+            }
         } else if (message.startsWith('/help')) {
             const helpMessage = 
             "- /image [descrição]: Gera uma imagem com o prompt fornecido.<br>" +
@@ -102,6 +108,7 @@ io.on('connection', (socket) => {
             "- /cat: Envia uma imagem de um gato.<br>" +
             "- /dog: Envia uma imagem de um cachorro.<br>" +
             "- /fox: Envia uma imagem de uma raposa.<br>" +
+            "- /audio [descricao]: Reproduz um dos oito áudios disponíveis.<br>" +
             "- /help: Exibe essa lista de comandos.";
             io.emit('chatMessage', { username: 'Bot', message: helpMessage });
         }
