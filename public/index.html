@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Roma AI</title>
+    <title>Chat com Geração de Imagens</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Chat com Geração de Imagens</h1>
+    <h1>Chat Roma AI</h1>
     <div id="chat">
         <ul id="chat-messages"></ul>
     </div>
@@ -73,7 +73,7 @@
             const message = messageInput.value.trim();
             if (message) {
                 displayMessage(username, message, 'sent'); // Exibe como mensagem enviada com o nome do usuário
-                socket.emit('chatMessage', message); // Envia ao servidor
+                socket.emit('chatMessage', { username, message }); // Envia ao servidor
                 messageInput.value = ''; // Limpa o campo de entrada
             }
         }
@@ -87,8 +87,10 @@
         });
 
         // Receber mensagens do servidor e exibir
-        socket.on('chatMessage', (msg) => {
-            displayMessage("Bot", msg, 'received'); // Nome do bot é definido como 'Bot'
+        socket.on('chatMessage', (data) => {
+            if (data.username !== username) {
+                displayMessage(data.username, data.message, 'received'); // Exibe a mensagem recebida com o nome do usuário
+            }
         });
 
         // Receber a URL da imagem e o comando do servidor
