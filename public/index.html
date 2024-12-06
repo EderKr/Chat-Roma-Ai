@@ -36,6 +36,14 @@
             "/cat": "audios/Gato.m4a",
             "/dog": "audios/Cachorro.m4a",
             "/fox": "audios/Raposa.m4a",
+            "/audio gato": "audios/Gato.m4a",
+            "/audio cachorro": "audios/Cachorro.m4a",
+            "/audio raposa": "audios/Raposa.m4a",
+            "/audio urso": "audios/Urso.m4a",
+            "/audio grito": "audios/Wilhelm Scream.m4a",
+            "/audio cano de metal": "audios/Metal Pipe.m4a",
+            "/audio sonic": "audios/Sonic Jumping.m4a",
+            "/audio cabra gritando": "audios/Goat Scream.m4a",
         };
 
         // Função para tocar o áudio específico com base no comando
@@ -65,6 +73,12 @@
             msgElement.classList.add(messageType); // Define como 'sent' ou 'received'
             chatMessages.appendChild(msgElement);
             chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática
+
+            // Toca o áudio se a mensagem for "Reproduzindo áudio"
+            if (sender === 'Bot' && message === 'Reproduzindo áudio') {
+                const lastCommand = chatMessages.lastElementChild.previousElementSibling.querySelector('p').textContent;
+                playAudio(lastCommand);
+            }
         }
 
         // Função para enviar a mensagem ao servidor
