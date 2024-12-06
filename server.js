@@ -20,78 +20,81 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
     console.log('Usuário conectado:', socket.id);
 
-    socket.on('chatMessage', async (msg) => {
-        if (msg.startsWith('/image')) {
-            const prompt = msg.replace('/image', '').trim();
+    socket.on('chatMessage', async (data) => {
+        const { username, message } = data;
+
+        io.emit('chatMessage', { username, message }); // Emite a mensagem para todos os clientes
+
+        if (message.startsWith('/image')) {
+            const prompt = message.replace('/image', '').trim();
             if (prompt) {
                 try {
                     const imageUrl = await generateImage(prompt);
-                    socket.emit('imageResponse', { imageUrl, command: msg });
+                    io.emit('imageResponse', { imageUrl, command: message });
                 } catch (error) {
                     console.error("Erro ao gerar imagem:", error.message);
-                    socket.emit('imageResponse', { message: "Erro ao gerar a imagem." });
+                    io.emit('imageResponse', { message: "Erro ao gerar a imagem." });
                 }
             } else {
-                socket.emit('imageResponse', { message: "Por favor, forneça um prompt após /image." });
+                io.emit('imageResponse', { message: "Por favor, forneça um prompt após /image." });
             }
-        } else if (msg.startsWith('/text')) {
-            const prompt = msg.replace('/text', '').trim();
+        } else if (message.startsWith('/text')) {
+            const prompt = message.replace('/text', '').trim();
             if (prompt) {
                 try {
                     const textResponse = await getOpenAIResponse(prompt);
-                    socket.emit('chatMessage', textResponse);
+                    io.emit('chatMessage', { username: 'Bot', message: textResponse });
                 } catch (error) {
                     console.error("Erro ao gerar resposta:", error.message);
-                    socket.emit('chatMessage', 'Erro ao gerar resposta.');
+                    io.emit('chatMessage', { username: 'Bot', message: 'Erro ao gerar resposta.' });
                 }
             } else {
-                socket.emit('chatMessage', 'Por favor, forneça um prompt após /text.');
+                io.emit('chatMessage', { username: 'Bot', message: 'Por favor, forneça um prompt após /text.' });
             }
-        } else if (msg.startsWith('/gif')) {
-            const query = msg.replace('/gif', '').trim();
+        } else if (message.startsWith('/gif')) {
+            const query = message.replace('/gif', '').trim();
             if (query) {
                 try {
                     const gifUrl = await getGif(query);
                     if (gifUrl) {
-                        socket.emit('imageResponse', { imageUrl: gifUrl, command: msg });
+                        io.emit('imageResponse', { imageUrl: gifUrl, command: message });
                     } else {
-                        socket.emit('imageResponse', { message: "Nenhum GIF encontrado para esse termo." });
+                        io.emit('imageResponse', { message: "Nenhum GIF encontrado para esse termo." });
                     }
                 } catch (error) {
                     console.error("Erro ao buscar GIF:", error.message);
-                    socket.emit('imageResponse', { message: "Erro ao buscar o GIF." });
+                    io.emit('imageResponse', { message: "Erro ao buscar o GIF." });
                 }
             } else {
-                socket.emit('imageResponse', { message: "Por favor, forneça um termo para busca de GIF após /gif." });
+                io.emit('imageResponse', { message: "Por favor, forneça um termo para busca de GIF após /gif." });
             }
-        } else if (msg.startsWith('/cat')) {
+        } else if (message.startsWith('/cat')) {
             try {
                 const catImageUrl = await getCatImage();
-                socket.emit('imageResponse', { imageUrl: catImageUrl, command: msg });
+                io.emit('imageResponse', { imageUrl: catImageUrl, command: message });
             } catch (error) {
                 console.error("Erro ao obter imagem do gato:", error.message);
-                socket.emit('chatMessage', 'Erro ao obter a imagem do gato.');
+                io.emit('chatMessage', { username: 'Bot', message: 'Erro ao obter a imagem do gato.' });
             }
-        } else if (msg.startsWith('/dog')) {
+        } else if (message.startsWith('/dog')) {
             try {
                 const dogImageUrl = await getDogImage();
-                socket.emit('imageResponse', { imageUrl: dogImageUrl, command: msg });
+                io.emit('imageResponse', { imageUrl: dogImageUrl, command: message });
             } catch (error) {
                 console.error("Erro ao obter imagem do cachorro:", error.message);
-                socket.emit('chatMessage', 'Erro ao obter a imagem do cachorro.');
+                io.emit('chatMessage', { username: 'Bot', message: 'Erro ao obter a imagem do cachorro.' });
             }
-        } else if (msg.startsWith('/fox')) {
+        } else if (message.startsWith('/fox')) {
             try {
                 const foxImageUrl = await getFoxImage();
-                socket.emit('imageResponse', { imageUrl: foxImageUrl, command: msg });
+                io.emit('imageResponse', { imageUrl: foxImageUrl, command: message });
             } catch (error) {
                 console.error("Erro ao obter imagem da raposa:", error.message);
-                socket.emit('chatMessage', 'Erro ao obter a imagem da raposa.');
+                io.emit('chatMessage', { username: 'Bot', message: 'Erro ao obter a imagem da raposa.' });
             }
-        } else if (msg.startsWith('/audio')) {
-            socket.emit('chatMessage', 'Gerando áudio...');
-        } else if (msg.startsWith('/help')) {
-            // Responde com a lista de comandos
+        } else if (message.startsWith('/audio')) {
+            io.emit('chatMessage', { username: 'Bot', message: 'Gerando áudio...' });
+        } else if (message.startsWith('/help')) {
             const helpMessage = 
             "- /image [descrição]: Gera uma imagem com o prompt fornecido.<br>" +
             "- /text [pergunta]: Recebe uma resposta gerada pela OpenAI.<br>" +
@@ -99,11 +102,8 @@ io.on('connection', (socket) => {
             "- /cat: Envia uma imagem de um gato.<br>" +
             "- /dog: Envia uma imagem de um cachorro.<br>" +
             "- /fox: Envia uma imagem de uma raposa.<br>" +
-            "- /audio: Gera áudio baseado na entrada fornecida.<br>" +
             "- /help: Exibe essa lista de comandos.";
-            socket.emit('chatMessage', helpMessage);
-        } else {
-            io.emit('chatMessage', msg);
+            io.emit('chatMessage', { username: 'Bot', message: helpMessage });
         }
     });
 
