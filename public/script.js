@@ -14,10 +14,18 @@ function playAudio(command) {
 }
 
 // Função para exibir mensagens no chat
-function displayMessage(message, messageType) {
+function displayMessage(sender, message, messageType) {
     const chatMessages = document.getElementById('chat-messages');
     const msgElement = document.createElement('li');
-    msgElement.innerHTML = message;
+
+    // Cria um elemento para o nome do usuário, sem o ":" após o nome
+    const usernameElement = document.createElement('span');
+    usernameElement.classList.add('username');
+    usernameElement.textContent = sender;  // Nome do usuário sem ":"
+    msgElement.appendChild(usernameElement);
+
+    // Exibe a mensagem abaixo do nome do usuário
+    msgElement.innerHTML += `<p>${message}</p>`;
     msgElement.classList.add(messageType); // Define como 'sent' ou 'received'
     chatMessages.appendChild(msgElement);
     chatMessages.scrollTop = chatMessages.scrollHeight; // Rolagem automática
@@ -27,9 +35,13 @@ function displayMessage(message, messageType) {
 function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
+    if (message) {
+        displayMessage(username, message, 'sent'); // Exibe como mensagem enviada com o nome do usuário
+        socket.emit('chatMessage', { username, message }); // Envia ao servidor
+        messageInput.value = ''; // Limpa o campo de entrada
+    }
 
     if (message.startsWith("/text ")) {
-        // Remove o comando /text e envia o conteúdo à API da OpenAI
         const userMessage = message.replace("/text ", "");
         fetch('/openai/chat', {
             method: 'POST',
@@ -41,17 +53,16 @@ function sendMessage() {
         .then(response => response.json())
         .then(data => {
             if (data.response) {
-                displayMessage(data.response, 'received');
+                displayMessage('Bot', data.response, 'received');
             } else {
-                displayMessage("Erro na resposta da API.", 'received');
+                displayMessage('Bot', "Erro na resposta da API.", 'received');
             }
         })
         .catch(error => {
             console.error("Erro ao se comunicar com a API OpenAI:", error);
-            displayMessage("Erro ao se comunicar com a API.", 'received');
+            displayMessage('Bot', "Erro ao se comunicar com a API.", 'received');
         });
     } else if (message.startsWith("/image") || message === "/cat" || message === "/dog" || message === "/fox" || message.startsWith("/gif")) {
-        // Toca o áudio e busca a imagem para os comandos /image, /cat, /dog, /fox e /gif
         playAudio(message);
 
         let url = '';
@@ -65,19 +76,15 @@ function sendMessage() {
             .then(response => response.json())
             .then(data => {
                 if (data.url) {
-                    displayMessage(`<img src="${data.url}" alt="Imagem" class="${message.slice(1)}-image">`, 'received');
+                    displayMessage('Bot', `<img src="${data.url}" alt="Imagem" class="${message.slice(1)}-image">`, 'received');
                 } else {
-                    displayMessage("Erro ao buscar a imagem.", 'received');
+                    displayMessage('Bot', "Erro ao buscar a imagem.", 'received');
                 }
             })
             .catch(error => {
                 console.error(`Erro ao buscar a imagem:`, error);
-                displayMessage("Erro ao buscar a imagem.", 'received');
+                displayMessage('Bot', "Erro ao buscar a imagem.", 'received');
             });
-    } else if (message) {
-        displayMessage(message, 'sent'); // Exibe como mensagem enviada
-        socket.emit('chatMessage', message); // Envia ao servidor
-        messageInput.value = ''; // Limpa o campo de entrada
     }
 }
 
@@ -90,15 +97,15 @@ document.getElementById('messageInput').addEventListener('keydown', function(eve
 });
 
 // Receber mensagens do servidor e exibir
-socket.on('chatMessage', (msg) => {
-    displayMessage(msg, 'received');
+socket.on('chatMessage', (data) => {
+    displayMessage(data.username, data.message, data.username === username ? 'sent' : 'received'); // Exibe a mensagem recebida com o nome do usuário
 });
 
 // Receber a URL da imagem e o comando do servidor
 socket.on('imageResponse', (data) => {
     if (data.imageUrl) {
-        displayMessage(`<img src="${data.imageUrl}" alt="Imagem gerada" class="generated-image">`, 'received');
+        displayMessage('Bot', `<img src="${data.imageUrl}" alt="Imagem gerada" class="generated-image">`, 'received');
     } else if (data.message) {
-        displayMessage(data.message, 'received');
+        displayMessage('Bot', data.message, 'received');
     }
 });
